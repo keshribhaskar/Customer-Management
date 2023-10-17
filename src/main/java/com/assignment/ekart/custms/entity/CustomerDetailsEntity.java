@@ -13,9 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerDetailsEntity {
+    @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String customerId;
+    private Long customerId;
     @Column
     private String name;
     @Column
