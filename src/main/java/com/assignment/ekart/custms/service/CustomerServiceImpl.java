@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-//@Transactional
+@Transactional
 public class CustomerServiceImpl implements CustomerService{
 
     @Autowired
@@ -45,7 +45,6 @@ public class CustomerServiceImpl implements CustomerService{
             }else {
                 customerRepo.deleteAll(customerData);
             }
-//            customerRepo.deleteByPhoneNumber(phoneNumber);
             return "Successfully deleted customer with phone number: "+phoneNumber;
         }catch (Exception e){
             return "Failed to delete customer. Reason: "+e.getMessage();
@@ -71,7 +70,6 @@ public class CustomerServiceImpl implements CustomerService{
     public CustomerDetails getCustomerByEmailId(String emailId) throws Exception {
         CustomerDetails cd = new CustomerDetails();
         CustomerDetailsEntity customer = null;
-//        Optional<CustomerDetailsEntity> cust = customerRepo.findById(emailId.toLowerCase());
         Optional<CustomerDetailsEntity> cust = customerRepo.findByEmailId(emailId.toLowerCase());
         if(cust.isPresent()){
             customer = cust.get();
@@ -84,5 +82,4 @@ public class CustomerServiceImpl implements CustomerService{
         cd.setPhoneNumber(customer.getPhoneNumber());
         return cd;
     }
-
 }

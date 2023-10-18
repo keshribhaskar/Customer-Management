@@ -1,6 +1,5 @@
 package com.assignment.ekart.custms.controller;
 
-import com.assignment.ekart.custms.entity.CustomerDetailsEntity;
 import com.assignment.ekart.custms.model.CartProductDetails;
 import com.assignment.ekart.custms.model.CustomerCartDetails;
 import com.assignment.ekart.custms.model.CustomerDetails;
@@ -42,18 +41,11 @@ public class CutomerController {
         return new ResponseEntity<>(registeredCustomer, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/getCustomers/{id}")
-    public ResponseEntity<Integer> getCustomerById(@PathVariable Long id) throws Exception {
-        return null;
-    }
-
     @PostMapping(value = "/addCustomers")
     public ResponseEntity<String> addCustomer(@Valid @RequestBody CustomerDetails customer) throws Exception {
 
         log.info("CUSTOMER TRYING TO REGISTER. CUSTOMER EMAIL ID: " + customer.getEmailId());
         String registeredWithEmailID = customerService.addNewCustomer(customer);
-//        registeredWithEmailID = environment.getProperty("CustomerAPI.CUSTOMER_REGISTRATION_SUCCESS")
-//                + registeredWithEmailID;
         return new ResponseEntity<>(registeredWithEmailID, HttpStatus.OK);
     }
 
@@ -71,22 +63,18 @@ public class CutomerController {
             throws Exception {
 
         CustomerDetails customerDetails = customerService.getCustomerByEmailId(customerCartDetails.getCustomerEmailId());
-//        System.out.println(customerDetails);
         Set<CartProductDetails> cartProductDetails = new HashSet<>();
         for (CartProductDetails cartProductDetail : customerCartDetails.getCartProducts()) {
 
             ProductDetails productDetails = template.getForEntity("http://localhost:8082"+"/productApi/product/"
                     +cartProductDetail.getProduct().getProductId(), ProductDetails.class).getBody();
 
-//            System.out.println(productDetails);
             cartProductDetail.setProduct(productDetails);
             cartProductDetails.add(cartProductDetail);
-
         }
 
         customerCartDetails.setCartProducts(cartProductDetails);
         String cartDet = objectMapper.writeValueAsString(customerCartDetails);
-        System.out.println("cartDet-> "+cartDet);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
