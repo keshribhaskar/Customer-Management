@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 //@Transactional
@@ -67,8 +68,21 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public List<CustomerDetails> getCustomerByEmailId(String emailId) {
-        return null;
+    public CustomerDetails getCustomerByEmailId(String emailId) throws Exception {
+        CustomerDetails cd = new CustomerDetails();
+        CustomerDetailsEntity customer = null;
+//        Optional<CustomerDetailsEntity> cust = customerRepo.findById(emailId.toLowerCase());
+        Optional<CustomerDetailsEntity> cust = customerRepo.findByEmailId(emailId.toLowerCase());
+        if(cust.isPresent()){
+            customer = cust.get();
+        }else{
+            throw new Exception("CUSTOMER NOT FOUND");
+        }
+        cd.setEmailId(customer.getEmailId());
+        cd.setName(customer.getName());
+        cd.setAddress(customer.getAddress());
+        cd.setPhoneNumber(customer.getPhoneNumber());
+        return cd;
     }
 
 }

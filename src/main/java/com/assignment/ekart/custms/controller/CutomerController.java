@@ -6,11 +6,11 @@ import com.assignment.ekart.custms.model.CustomerCartDetails;
 import com.assignment.ekart.custms.model.CustomerDetails;
 import com.assignment.ekart.custms.model.ProductDetails;
 import com.assignment.ekart.custms.service.CustomerService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.constraints.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
+@CrossOrigin
 @Validated
 @RestController
 @RequestMapping(value = "/customers")
@@ -31,6 +32,9 @@ public class CutomerController {
 
     @Autowired
     RestTemplate template;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @GetMapping(value = "/getCustomers")
     public ResponseEntity<List<CustomerDetails>> getCustomer() throws Exception {
@@ -66,27 +70,29 @@ public class CutomerController {
     public ResponseEntity<String> addProductToCart(@Valid @RequestBody CustomerCartDetails customerCartDetails)
             throws Exception {
 
-        customerService.getCustomerByEmailId(customerCartDetails.getCustomerEmailId());
+        CustomerDetails customerDetails = customerService.getCustomerByEmailId(customerCartDetails.getCustomerEmailId());
+//        System.out.println(customerDetails);
         Set<CartProductDetails> cartProductDetails = new HashSet<>();
         for (CartProductDetails cartProductDetail : customerCartDetails.getCartProducts()) {
 
-            ProductDetails productDetails = template.getForEntity("http://localhost:8082" + "/products"
+            ProductDetails productDetails = template.getForEntity("http://localhost:8082"+"/productApi/product/"
                     +cartProductDetail.getProduct().getProductId(), ProductDetails.class).getBody();
-//            cartProductDTO.setProduct(productDTO);
-            // We are calling the product API using hard-coded URI
-            // Replace this call with the appropriate MS name
-            // Product API is upscaled (available in 2 numbers). Hence, use load balanced
-            // template to make call to the Product API
+
+//            System.out.println(productDetails);
+            cartProductDetail.setProduct(productDetails);
+            cartProductDetails.add(cartProductDetail);
+
         }
-        // We are calling the Cart API using hard-coded URI
-        // Replace this call with the appropriate MS name
-        // CartMS is not an upscaled one (available in 1 number) , still load-balanced
-        // rest template should be used here to make the call
-        // Don't create and autowire a normal rest template because load balanced
-        // template is already in config file
-//        customerCartDTO.setCartProducts(cartProductDTOS);
-        return template.postForEntity("http://localhost:8080" + "/kartApi/products",
-                customerCartDetails, String.class);
+
+        customerCartDetails.setCartProducts(cartProductDetails);
+        String cartDet = objectMapper.writeValueAsString(customerCartDetails);
+        System.out.println("cartDet-> "+cartDet);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<String>(cartDet, headers);
+
+        return template.postForEntity("http://localhost:8080" + "/kartApi/products", request, String.class);
     }
 
 }
