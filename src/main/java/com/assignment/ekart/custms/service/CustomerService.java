@@ -11,5 +11,5 @@ public interface CustomerService {
 
     public List<CustomerDetails> getCustomer();
 
-    public List<CustomerDetails> getCustomerByEmailId(String emailId);
+    public CustomerDetails getCustomerByEmailId(String emailId) throws Exception;
 }
