@@ -18,7 +18,7 @@ import java.util.Optional;
 public class CustomerServiceImpl implements CustomerService{
 
     @Autowired
-    CustomerRepo customerRepo;
+    private CustomerRepo customerRepo;
 
     public String addNewCustomer(CustomerDetails customer) {
         try{

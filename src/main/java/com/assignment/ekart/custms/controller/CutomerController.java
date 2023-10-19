@@ -28,13 +28,13 @@ import java.util.Set;
 public class CutomerController {
 
     @Autowired
-    CustomerService customerService;
+    private CustomerService customerService;
 
     @Autowired
-    RestTemplate template;
+    private RestTemplate template;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @Value("${application.product.name}")
     private String productApp;
