@@ -26,11 +26,9 @@ import static org.springframework.http.HttpStatus.OK;
 public class CustomerControllerTest {
 
     @InjectMocks
-    CutomerController customerController;
+    private CutomerController customerController;
     @Mock
     private CustomerService customerService;
-    @Mock
-    private RestTemplate template;
 
     @Test
     public void getCustomerTest() throws Exception {
@@ -50,6 +48,7 @@ public class CustomerControllerTest {
         HttpStatusCode expected = OK;
         ResponseEntity<List<CustomerDetails>> responseEntity = customerController.getCustomer();
         HttpStatusCode actual = responseEntity.getStatusCode();
+        System.out.println(responseEntity.getBody());
         Assertions.assertEquals(expected,actual);
     }
 
@@ -61,13 +60,24 @@ public class CustomerControllerTest {
         customer.setPhoneNumber("9854869784");
         customer.setEmailId("jus@gmail.com");
 
-//        MockHttpServletRequest request = new MockHttpServletRequest();
-//        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
         ResponseEntity<String> responseEntity = customerController.addCustomer(customer);
         HttpStatusCode expected = OK;
         HttpStatusCode actual = responseEntity.getStatusCode();
         Assertions.assertEquals(expected,actual);
     }
+    @Test
+    public void deleteCustomerTest() throws Exception {
+        String phone = "9840595543";
+        ResponseEntity<String> responseEntity = customerController.deleteCustomer(phone);
+        HttpStatusCode expected = OK;
+        HttpStatusCode actual = responseEntity.getStatusCode();
+        Assertions.assertEquals(expected,actual);
+    }
+
+    @Test
+    public void addProductToCartTest() throws Exception {
+
+    }
+
 
 }

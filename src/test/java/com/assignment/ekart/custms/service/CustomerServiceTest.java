@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CustomerServiceTest {
 
     @Autowired
-    CustomerService customerService;
+    private CustomerService customerService;
     @Autowired
     private ObjectMapper mapper;
 
@@ -43,7 +43,6 @@ public class CustomerServiceTest {
 
     @Test
     public void deleteCustomerSuccessTest(){
-//        customerService.addNewCustomer(customer);
         String expected = "Successfully deleted customer with phone number: 9854869784";
         String actual = customerService.deleteCustomer("9854869784");
         Assertions.assertEquals(expected,actual);
@@ -52,7 +51,6 @@ public class CustomerServiceTest {
     @Test
     public void getCustomerSuccessTest() throws JsonProcessingException {
         String expected = "[{\"name\":\"John\",\"emailId\":\"jus@gmail.com\",\"phoneNumber\":\"9854869784\",\"address\":\"USA\"}]";
-//        customerService.addNewCustomer(customer);
         List<CustomerDetails> customerDetails = customerService.getCustomer();
         String actual = mapper.writeValueAsString(customerDetails);
         Assertions.assertEquals(expected,actual);
@@ -61,7 +59,6 @@ public class CustomerServiceTest {
     @Test
     public void getCustomerByEmailIdSuccessTest() throws Exception {
         String expected = "{\"name\":\"John\",\"emailId\":\"jus@gmail.com\",\"phoneNumber\":\"9854869784\",\"address\":\"USA\"}";
-//        customerService.addNewCustomer(customer);
         CustomerDetails customerData = customerService.getCustomerByEmailId("jus@gmail.com");
         String actual = mapper.writeValueAsString(customerData);
         Assertions.assertEquals(expected,actual);
@@ -77,7 +74,6 @@ public class CustomerServiceTest {
 
     @Test
     public void deleteCustomerFailedTest(){
-//        customerService.addNewCustomer(customer);
         String expected = "Failed to delete customer. Reason: phone number 9854884 not found";
         String actual = customerService.deleteCustomer("9854884");
         Assertions.assertEquals(expected,actual);
