@@ -1,22 +1,29 @@
 package com.assignment.ekart.custms.service;
 
 import com.assignment.ekart.custms.entity.CustomerDetailsEntity;
+import com.assignment.ekart.custms.model.CartProductDetails;
+import com.assignment.ekart.custms.model.CustomerCartDetails;
 import com.assignment.ekart.custms.model.CustomerDetails;
+import com.assignment.ekart.custms.model.ProductDetails;
 import com.assignment.ekart.custms.repository.CustomerRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CustomerServiceTest {
 
     @Autowired
@@ -32,7 +39,6 @@ public class CustomerServiceTest {
         customer.setAddress("USA");
         customer.setPhoneNumber("9854869784");
         customer.setEmailId("jus@gmail.com");
-        customerService.addNewCustomer(customer);
     }
     @Test
     public void addNewCustomerSuccessTest(){
@@ -91,4 +97,41 @@ public class CustomerServiceTest {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
+    @Test
+    public void getProductsTest() throws JsonProcessingException {
+        String expected = "Product added to cart  1";
+        Set<CartProductDetails> cartProducts = new HashSet<>();
+        CustomerCartDetails customerCartDetails = new CustomerCartDetails();
+        CartProductDetails cartProduct = new CartProductDetails();
+        ProductDetails product = new ProductDetails();
+        product.setProductId(1);
+        cartProduct.setCartProductId(1);
+        cartProduct.setQuantity(5);
+        cartProduct.setProduct(product);
+        customerCartDetails.setCartId(1);
+        customerCartDetails.setCustomerEmailId("k@gmail.com");
+        cartProducts.add(cartProduct);
+        customerCartDetails.setCartProducts(cartProducts);
+        ResponseEntity<String> response = customerService.getProducts(customerCartDetails);
+        String actual = response.getBody();
+        Assertions.assertEquals(expected,actual);
+    }
+    @Test
+    public void getProductsFailedTest() throws JsonProcessingException {
+        String expected = "Cannot invoke \"com.assignment.ekart.custms.model.ProductDetails.getProductId()\" because the return value of \"com.assignment.ekart.custms.model.CartProductDetails.getProduct()\" is null";
+        Set<CartProductDetails> cartProducts = new HashSet<>();
+        CustomerCartDetails customerCartDetails = new CustomerCartDetails();
+        CartProductDetails cartProduct = new CartProductDetails();
+        ProductDetails product = new ProductDetails();
+        product.setProductId(1);
+        cartProduct.setCartProductId(1);
+        cartProduct.setQuantity(5);
+        customerCartDetails.setCartId(1);
+        customerCartDetails.setCustomerEmailId("k@gmail.com");
+        cartProducts.add(cartProduct);
+        customerCartDetails.setCartProducts(cartProducts);
+        ResponseEntity<String> response = customerService.getProducts(customerCartDetails);
+        String actual = response.getBody();
+        Assertions.assertEquals(expected,actual);
+    }
 }
