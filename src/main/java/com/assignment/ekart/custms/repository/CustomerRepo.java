@@ -1,7 +1,6 @@
 package com.assignment.ekart.custms.repository;
 
 import com.assignment.ekart.custms.entity.CustomerDetailsEntity;
-import com.assignment.ekart.custms.model.CustomerDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

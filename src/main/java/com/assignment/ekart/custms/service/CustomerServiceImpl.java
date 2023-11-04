@@ -19,6 +19,9 @@ import org.springframework.web.client.RestTemplate;
 import java.sql.SQLException;
 import java.util.*;
 
+import static com.assignment.ekart.custms.config.Constant.*;
+
+
 @Service
 @Transactional
 public class CustomerServiceImpl implements CustomerService{
@@ -48,11 +51,12 @@ public class CustomerServiceImpl implements CustomerService{
                     .phoneNumber(customer.getPhoneNumber())
                     .emailId(customer.getEmailId())
                     .build();
-            customerRepo.save(customerDetailsEntity);
+
+            CustomerDetailsEntity a = customerRepo.save(customerDetailsEntity);
             Long id = customerDetailsEntity.getCustomerId();
             return "Successfully added customer with id: "+id;
         }catch (Exception e){
-            return "Failed to add customer.";
+            return FAILED_ADD_CUSTOMER;
         }
     }
 
@@ -61,13 +65,13 @@ public class CustomerServiceImpl implements CustomerService{
         try{
             List<CustomerDetailsEntity> customerData = customerRepo.findByPhoneNumber(phoneNumber);
             if(customerData.isEmpty()){
-                throw new SQLException("phone number " + phoneNumber +" not found");
+                throw new SQLException("phone number not found");
             }else {
                 customerRepo.deleteAll(customerData);
             }
             return "Successfully deleted customer with phone number: "+phoneNumber;
         }catch (Exception e){
-            return "Failed to delete customer. Reason: "+e.getMessage();
+            return "Deletion failed "+e.getMessage();
         }
     }
 
@@ -76,12 +80,17 @@ public class CustomerServiceImpl implements CustomerService{
         List<CustomerDetailsEntity> cde = customerRepo.findAll();
         CustomerDetails cd = new CustomerDetails();
         List<CustomerDetails> cdl = new ArrayList<>();
-        for(CustomerDetailsEntity cden:cde){
-            cd.setName(cden.getName());
-            cd.setAddress(cden.getAddress());
-            cd.setPhoneNumber(cden.getPhoneNumber());
-            cd.setEmailId(cden.getEmailId());
+        if(cde.isEmpty()){
+            cd.setError(CUSTOMER_NOT_FOUND);
             cdl.add(cd);
+        }else {
+            for (CustomerDetailsEntity cden : cde) {
+                cd.setName(cden.getName());
+                cd.setAddress(cden.getAddress());
+                cd.setPhoneNumber(cden.getPhoneNumber());
+                cd.setEmailId(cden.getEmailId());
+                cdl.add(cd);
+            }
         }
         return cdl;
     }
@@ -89,17 +98,21 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public CustomerDetails getCustomerByEmailId(String emailId) throws Exception {
         CustomerDetails cd = new CustomerDetails();
-        CustomerDetailsEntity customer = null;
-        Optional<CustomerDetailsEntity> cust = customerRepo.findByEmailId(emailId.toLowerCase());
-        if(cust.isPresent()){
-            customer = cust.get();
-        }else{
-            throw new Exception("CUSTOMER NOT FOUND");
+        CustomerDetailsEntity customer;
+        Optional<CustomerDetailsEntity> cust = customerRepo.findByEmailId(emailId);
+        try{
+            if(cust.isPresent()){
+                customer = cust.get();
+            }else{
+                throw new Exception(CUSTOMER_NOT_FOUND);
+            }
+            cd.setEmailId(customer.getEmailId());
+            cd.setName(customer.getName());
+            cd.setAddress(customer.getAddress());
+            cd.setPhoneNumber(customer.getPhoneNumber());
+        }catch (Exception e){
+            cd.setError(e.getMessage());
         }
-        cd.setEmailId(customer.getEmailId());
-        cd.setName(customer.getName());
-        cd.setAddress(customer.getAddress());
-        cd.setPhoneNumber(customer.getPhoneNumber());
         return cd;
     }
 
@@ -110,7 +123,7 @@ public class CustomerServiceImpl implements CustomerService{
 
             for (CartProductDetails cartProductDetail : customerCartDetails.getCartProducts()) {
                 ResponseEntity<ProductDetails> response = template
-                        .getForEntity("http://" + productApp + "/productApi/product/" + cartProductDetail.getProduct().getProductId(),
+                        .getForEntity(HTTP_HEAD + productApp + PRODUCT_ENDPOINT + cartProductDetail.getProduct().getProductId(),
                                 ProductDetails.class);
                 ProductDetails productDetails = response.getBody();
                 cartProductDetail.setProduct(productDetails);
@@ -124,7 +137,7 @@ public class CustomerServiceImpl implements CustomerService{
 
             HttpEntity<String> request = new HttpEntity<String>(cartDet, headers);
 
-            ResponseEntity<String> isAdded = template.postForEntity("http://" + kartApp + "/kartApi/products", request, String.class);
+            ResponseEntity<String> isAdded = template.postForEntity(HTTP_HEAD + kartApp + KART_ENDPOINT, request, String.class);
 
             return isAdded;
         }catch (Exception e){
