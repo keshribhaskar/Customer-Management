@@ -76,7 +76,7 @@ public class CutomerController {
 
     @PostMapping(value = "/ekart/add-product-kart")
     public ResponseEntity<String> addProductToCart(@Valid @RequestBody CustomerCartDetails customerCartDetails) throws Exception {
-        ResponseEntity<String> productUpdate = customerService.getProducts(customerCartDetails);
+        ResponseEntity<String> productUpdate = customerService.updateProductsToKart(customerCartDetails);
         return productUpdate;
     }
 }

@@ -15,5 +15,5 @@ public interface CustomerService {
 
     public CustomerDetails getCustomerByEmailId(String emailId) throws Exception;
 
-    public ResponseEntity<String> getProducts(CustomerCartDetails customerCartDetails) throws JsonProcessingException;
+    public ResponseEntity<String> updateProductsToKart(CustomerCartDetails customerCartDetails) throws JsonProcessingException;
 }

@@ -10,6 +10,7 @@ import com.assignment.ekart.custms.repository.CustomerRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -117,29 +118,35 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public ResponseEntity<String> getProducts(CustomerCartDetails customerCartDetails) throws JsonProcessingException {
+    public ResponseEntity<String> updateProductsToKart(CustomerCartDetails customerCartDetails) throws JsonProcessingException {
         Set<CartProductDetails> cartProductDetails = new HashSet<>();
         try {
+            String custEmailId = customerCartDetails.getCustomerEmailId();
+            CustomerDetails customerCheck = getCustomerByEmailId(custEmailId);
+            String status = customerCheck.getError();
+            if(StringUtils.isEmpty(status)){
+                for (CartProductDetails cartProductDetail : customerCartDetails.getCartProducts()) {
+                    ResponseEntity<ProductDetails> response = template
+                            .getForEntity(HTTP_HEAD + productApp + PRODUCT_ENDPOINT + cartProductDetail.getProduct().getProductId(),
+                                    ProductDetails.class);
+                    ProductDetails productDetails = response.getBody();
+                    cartProductDetail.setProduct(productDetails);
+                    cartProductDetails.add(cartProductDetail);
+                }
 
-            for (CartProductDetails cartProductDetail : customerCartDetails.getCartProducts()) {
-                ResponseEntity<ProductDetails> response = template
-                        .getForEntity(HTTP_HEAD + productApp + PRODUCT_ENDPOINT + cartProductDetail.getProduct().getProductId(),
-                                ProductDetails.class);
-                ProductDetails productDetails = response.getBody();
-                cartProductDetail.setProduct(productDetails);
-                cartProductDetails.add(cartProductDetail);
+                customerCartDetails.setCartProducts(cartProductDetails);
+                String cartDet = objectMapper.writeValueAsString(customerCartDetails);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<String> request = new HttpEntity<String>(cartDet, headers);
+
+                ResponseEntity<String> isAdded = template.postForEntity(HTTP_HEAD + kartApp + KART_ENDPOINT, request, String.class);
+
+                return isAdded;
+            }else {
+                throw new Exception(CUSTOMER_NOT_FOUND);
             }
-
-            customerCartDetails.setCartProducts(cartProductDetails);
-            String cartDet = objectMapper.writeValueAsString(customerCartDetails);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<String> request = new HttpEntity<String>(cartDet, headers);
-
-            ResponseEntity<String> isAdded = template.postForEntity(HTTP_HEAD + kartApp + KART_ENDPOINT, request, String.class);
-
-            return isAdded;
         }catch (Exception e){
             ResponseEntity<String> error = new ResponseEntity<>(e.getMessage(), HttpStatus.EXPECTATION_FAILED);
             return error;

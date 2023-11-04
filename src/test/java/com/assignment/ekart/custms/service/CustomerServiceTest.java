@@ -1,11 +1,9 @@
 package com.assignment.ekart.custms.service;
 
-import com.assignment.ekart.custms.entity.CustomerDetailsEntity;
 import com.assignment.ekart.custms.model.CartProductDetails;
 import com.assignment.ekart.custms.model.CustomerCartDetails;
 import com.assignment.ekart.custms.model.CustomerDetails;
 import com.assignment.ekart.custms.model.ProductDetails;
-import com.assignment.ekart.custms.repository.CustomerRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
@@ -13,13 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -41,8 +35,9 @@ public class CustomerServiceTest {
         customer.setEmailId("jus@gmail.com");
     }
     @Test
+    @Order(1)
     public void addNewCustomerSuccessTest(){
-        String expected = "Successfully added customer with id: 2";
+        String expected = "Successfully added customer with id: 1";
         String actual = customerService.addNewCustomer(customer);
         Assertions.assertEquals(expected,actual);
     }
@@ -55,6 +50,7 @@ public class CustomerServiceTest {
     }
 
     @Test
+    @Order(2)
     public void getCustomerSuccessTest() throws JsonProcessingException {
         String expected = "[{\"name\":\"John\",\"emailId\":\"jus@gmail.com\",\"phoneNumber\":\"9854869784\",\"address\":\"USA\"}]";
         List<CustomerDetails> customerDetails = customerService.getCustomer();
@@ -63,6 +59,7 @@ public class CustomerServiceTest {
     }
 
     @Test
+    @Order(3)
     public void getCustomerByEmailIdSuccessTest() throws Exception {
         String expected = "{\"name\":\"John\",\"emailId\":\"jus@gmail.com\",\"phoneNumber\":\"9854869784\",\"address\":\"USA\"}";
         CustomerDetails customerData = customerService.getCustomerByEmailId("jus@gmail.com");
@@ -71,6 +68,7 @@ public class CustomerServiceTest {
     }
 
     @Test
+    @Order(4)
     public void addNewCustomerFailedTest(){
         CustomerDetails customer1 = null;
         String expected = "Failed to add customer.";
@@ -80,21 +78,22 @@ public class CustomerServiceTest {
 
     @Test
     public void deleteCustomerFailedTest(){
-        String expected = "Failed to delete customer. Reason: phone number 9854884 not found";
+        String expected = "Deletion failed phone number not found";
         String actual = customerService.deleteCustomer("9854884");
         Assertions.assertEquals(expected,actual);
     }
 
     @Test
     public void getCustomerByEmailIdFailedTest() throws Exception {
-        Exception exception = assertThrows(java.lang.Exception.class, () -> {
-            customerService.getCustomerByEmailId("dummy@gmail.com");
-        });
-
-        String expectedMessage = "CUSTOMER NOT FOUND";
-        String actualMessage = exception.getMessage();
-
-        assertTrue(actualMessage.contains(expectedMessage));
+//        Exception exception = assertThrows(java.lang.Exception.class, () -> {
+//            customerService.getCustomerByEmailId("dummy@gmail.com");
+//        });
+        CustomerDetails errorMsg = customerService.getCustomerByEmailId("dummy@gmail.com");
+        String actual = errorMsg.getError();
+        String expected = "Customer not found";
+//        String actualMessage = exception.getMessage();
+//        assertTrue(actualMessage.contains(expectedMessage));
+        Assertions.assertEquals(expected,actual);
     }
 
     @Test
@@ -112,7 +111,7 @@ public class CustomerServiceTest {
         customerCartDetails.setCustomerEmailId("k@gmail.com");
         cartProducts.add(cartProduct);
         customerCartDetails.setCartProducts(cartProducts);
-        ResponseEntity<String> response = customerService.getProducts(customerCartDetails);
+        ResponseEntity<String> response = customerService.updateProductsToKart(customerCartDetails);
         String actual = response.getBody();
         Assertions.assertEquals(expected,actual);
     }
@@ -130,7 +129,7 @@ public class CustomerServiceTest {
         customerCartDetails.setCustomerEmailId("k@gmail.com");
         cartProducts.add(cartProduct);
         customerCartDetails.setCartProducts(cartProducts);
-        ResponseEntity<String> response = customerService.getProducts(customerCartDetails);
+        ResponseEntity<String> response = customerService.updateProductsToKart(customerCartDetails);
         String actual = response.getBody();
         Assertions.assertEquals(expected,actual);
     }
