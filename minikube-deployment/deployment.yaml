@@ -5,7 +5,7 @@ metadata:
   labels:
     app: customer-api
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: customer-api
@@ -22,11 +22,3 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-#          livenessProbe:
-#            httpGet:
-#              path: /
-#              port: http
-#          readinessProbe:
-#            httpGet:
-#              path: /
-#              port: http

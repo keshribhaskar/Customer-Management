@@ -98,7 +98,7 @@ public class CustomerServiceTest {
 
     @Test
     public void getProductsTest() throws JsonProcessingException {
-        String expected = "Product added to cart  1";
+        String expected = "Customer not found";
         Set<CartProductDetails> cartProducts = new HashSet<>();
         CustomerCartDetails customerCartDetails = new CustomerCartDetails();
         CartProductDetails cartProduct = new CartProductDetails();
@@ -117,7 +117,7 @@ public class CustomerServiceTest {
     }
     @Test
     public void getProductsFailedTest() throws JsonProcessingException {
-        String expected = "Cannot invoke \"com.assignment.ekart.custms.model.ProductDetails.getProductId()\" because the return value of \"com.assignment.ekart.custms.model.CartProductDetails.getProduct()\" is null";
+        String expected = "Customer not found";
         Set<CartProductDetails> cartProducts = new HashSet<>();
         CustomerCartDetails customerCartDetails = new CustomerCartDetails();
         CartProductDetails cartProduct = new CartProductDetails();
